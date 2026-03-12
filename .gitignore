@@ -1,0 +1,53 @@
+# Build output
+bin/
+obj/
+out/
+artifacts/
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Rider / JetBrains
+.idea/
+*.sln.iml
+
+# Logs
+*.log
+logs/
+
+# NuGet
+packages/
+*.nupkg
+
+# Test output
+TestResults/
+coverage/
+*.coverage
+*.coveragexml
+
+# WPF / desktop
+*.db-shm
+*.db-wal
+*.db
+
+# OS files
+Thumbs.db
+Desktop.ini
+
+# Environment / secrets
+.env
+.env.*
+appsettings.Local.json
+src/Task_Reminder.Api/appsettings.Local.json
+src/Task_Reminder.Wpf/appsettings.Local.json
+
+# Generated publish folders
+publish/
+PublishProfiles/
+
+# Git helpers
+*.orig
