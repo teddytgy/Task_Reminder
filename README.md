@@ -672,6 +672,8 @@ Additional runbook and deployment documentation is included in:
 - `docs/OPERATIONS_RUNBOOK.md`
 - `docs/INTEGRATIONS.md`
 - `docs/OFFICE_DEPLOYMENT_MODEL.md`
+- `docs/OFFICE_DEPLOYMENT_CHECKLIST.md`
+- `docs/RELEASE_CHECKLIST.md`
 - `docs/DEV_WORKFLOW.md`
 - `docs/USER_TRAINING_MANUAL.md`
 - `docs/USER_TRAINING_MANUAL.html`
