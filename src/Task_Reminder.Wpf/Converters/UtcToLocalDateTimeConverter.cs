@@ -1,4 +1,6 @@
+using System;
 using System.Globalization;
+using System.Windows;
 using System.Windows.Data;
 
 namespace Task_Reminder.Wpf.Converters;
@@ -10,11 +12,6 @@ public sealed class UtcToLocalDateTimeConverter : IValueConverter
         if (value is DateTime dateTime)
         {
             return dateTime.ToLocalTime().ToString("g", culture);
-        }
-
-        if (value is DateTime? nullable && nullable.HasValue)
-        {
-            return nullable.Value.ToLocalTime().ToString("g", culture);
         }
 
         return "-";

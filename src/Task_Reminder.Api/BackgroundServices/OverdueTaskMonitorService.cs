@@ -8,6 +8,7 @@ public sealed class OverdueTaskMonitorService(
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
+        logger.LogInformation("Overdue task monitor started.");
         using var timer = new PeriodicTimer(TimeSpan.FromMinutes(1));
 
         while (!stoppingToken.IsCancellationRequested && await timer.WaitForNextTickAsync(stoppingToken))
@@ -31,5 +32,7 @@ public sealed class OverdueTaskMonitorService(
                 logger.LogError(ex, "Failed while processing overdue tasks.");
             }
         }
+
+        logger.LogInformation("Overdue task monitor stopped.");
     }
 }

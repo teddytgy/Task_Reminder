@@ -1,11 +1,13 @@
 using Microsoft.AspNetCore.Mvc;
 using Task_Reminder.Api.Domain.Services;
+using Task_Reminder.Api.Security;
 using Task_Reminder.Shared;
 
 namespace Task_Reminder.Api.Controllers;
 
 [ApiController]
 [Route("api/tasks")]
+[RequireOfficePermission(OfficePermission.ViewOperationalData)]
 public sealed class TasksController(ITaskService taskService) : ControllerBase
 {
     [HttpPost]
@@ -63,6 +65,20 @@ public sealed class TasksController(ITaskService taskService) : ControllerBase
     public async Task<ActionResult<IReadOnlyList<TaskHistoryDto>>> HistoryAsync(Guid id, CancellationToken cancellationToken)
     {
         return Ok(await taskService.GetHistoryAsync(id, cancellationToken));
+    }
+
+    [HttpPost("{id:guid}/comments")]
+    public async Task<ActionResult<TaskHistoryDto>> AddCommentAsync(Guid id, [FromBody] AddTaskCommentRequest request, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var result = await taskService.AddCommentAsync(id, request, cancellationToken);
+            return result is null ? NotFound() : Ok(result);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return ValidationProblem(detail: ex.Message);
+        }
     }
 
     private async Task<ActionResult<TaskItemDto>> ExecuteMutationAsync(Func<Task<TaskItemDto?>> action)

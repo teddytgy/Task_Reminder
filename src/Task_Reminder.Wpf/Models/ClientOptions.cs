@@ -8,4 +8,5 @@ public sealed class ClientOptions
     public string SignalRHubUrl { get; set; } = "https://localhost:7087/hubs/tasks";
     public int ReminderPollingSeconds { get; set; } = 60;
     public int DefaultRepeatMinutes { get; set; } = 30;
+    public bool AllowInvalidLocalCertificatesInDevelopment { get; set; } = true;
 }

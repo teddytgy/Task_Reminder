@@ -9,6 +9,18 @@ public partial class LoginWindow : Window
     {
         InitializeComponent();
         DataContext = viewModel;
-        Loaded += async (_, _) => await viewModel.InitializeAsync(CancellationToken.None);
+        Loaded += async (_, _) =>
+        {
+            await viewModel.InitializeAsync(CancellationToken.None);
+            if (viewModel.HasLoadingError)
+            {
+                MessageBox.Show(
+                    this,
+                    viewModel.StatusMessage,
+                    "API Connection Issue",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Warning);
+            }
+        };
     }
 }

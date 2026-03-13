@@ -1,0 +1,30 @@
+[
+  {
+    "patientName": "Avery Brooks",
+    "patientReference": "PT-6101",
+    "appointmentDateLocal": "2026-03-16",
+    "appointmentTimeLocal": "08:30:00",
+    "providerName": "Dr. Lee",
+    "appointmentType": "Hygiene Recall",
+    "status": "Scheduled",
+    "confirmationStatus": "NotStarted",
+    "insuranceStatus": "PendingVerification",
+    "balanceStatus": "NoBalance",
+    "notes": "Prefers morning calls.",
+    "sourceReference": "CSV-APT-6101"
+  },
+  {
+    "patientName": "Harper James",
+    "patientReference": "PT-6102",
+    "appointmentDateLocal": "2026-03-17",
+    "appointmentTimeLocal": "14:00:00",
+    "providerName": "Dr. Shah",
+    "appointmentType": "Crown Seat",
+    "status": "Scheduled",
+    "confirmationStatus": "Pending",
+    "insuranceStatus": "Verified",
+    "balanceStatus": "BalanceDue",
+    "notes": "Review estimated patient portion before check-in.",
+    "sourceReference": "CSV-APT-6102"
+  }
+]

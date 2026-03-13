@@ -1,0 +1,98 @@
+<Window x:Class="Task_Reminder.Wpf.Views.ManagerDashboardWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Manager Dashboard"
+        Height="720"
+        Width="1160"
+        WindowStartupLocation="CenterOwner">
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <DockPanel>
+            <TextBlock FontSize="24" FontWeight="SemiBold" Text="Office Task Performance" />
+            <TextBlock Margin="16,8,0,0" VerticalAlignment="Center" Foreground="#666" Text="{Binding StatusMessage}" />
+        </DockPanel>
+
+        <StackPanel Grid.Row="1" Margin="0,16,0,16" Orientation="Horizontal">
+            <ComboBox Width="180" ItemsSource="{Binding RangeOptions}" SelectedItem="{Binding SelectedRange}" />
+            <TextBox Width="130" Margin="8,0,0,0" Text="{Binding CustomFromText}" ToolTip="Custom start: yyyy-MM-dd" />
+            <TextBox Width="130" Margin="8,0,0,0" Text="{Binding CustomToText}" ToolTip="Custom end: yyyy-MM-dd" />
+            <Button Width="90" Margin="8,0,0,0" Content="Refresh" Command="{Binding RefreshCommand}" />
+            <Button Width="90" Margin="8,0,0,0" Content="Export" Click="Export_Click" />
+            <Button Width="90" Margin="8,0,0,0" Content="Close" Click="Close_Click" />
+        </StackPanel>
+
+        <UniformGrid Grid.Row="2" Rows="1" Columns="5" Margin="0,0,0,16">
+            <Border Margin="0,0,12,0" Padding="14" BorderBrush="#D8D8D8" BorderThickness="1" CornerRadius="8">
+                <StackPanel>
+                    <TextBlock Foreground="#666" Text="Open Tasks" />
+                    <TextBlock FontSize="28" FontWeight="SemiBold" Text="{Binding TotalOpenTasks}" />
+                </StackPanel>
+            </Border>
+            <Border Margin="0,0,12,0" Padding="14" BorderBrush="#D8D8D8" BorderThickness="1" CornerRadius="8">
+                <StackPanel>
+                    <TextBlock Foreground="#666" Text="Overdue" />
+                    <TextBlock FontSize="28" FontWeight="SemiBold" Text="{Binding OverdueTasks}" />
+                </StackPanel>
+            </Border>
+            <Border Margin="0,0,12,0" Padding="14" BorderBrush="#D8D8D8" BorderThickness="1" CornerRadius="8">
+                <StackPanel>
+                    <TextBlock Foreground="#666" Text="Completed" />
+                    <TextBlock FontSize="28" FontWeight="SemiBold" Text="{Binding CompletedInRange}" />
+                </StackPanel>
+            </Border>
+            <Border Margin="0,0,12,0" Padding="14" BorderBrush="#D8D8D8" BorderThickness="1" CornerRadius="8">
+                <StackPanel>
+                    <TextBlock Foreground="#666" Text="Unassigned" />
+                    <TextBlock FontSize="28" FontWeight="SemiBold" Text="{Binding UnassignedTasks}" />
+                </StackPanel>
+            </Border>
+            <Border Padding="14" BorderBrush="#D8D8D8" BorderThickness="1" CornerRadius="8">
+                <StackPanel>
+                    <TextBlock Foreground="#666" Text="Avg. Completion (min)" />
+                    <TextBlock FontSize="28" FontWeight="SemiBold" Text="{Binding AverageCompletionMinutes, StringFormat=F1}" />
+                </StackPanel>
+            </Border>
+        </UniformGrid>
+
+        <Grid Grid.Row="3">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="1.2*" />
+            </Grid.ColumnDefinitions>
+
+            <GroupBox Header="By Category" Margin="0,0,12,0">
+                <DataGrid ItemsSource="{Binding TasksByCategory}" AutoGenerateColumns="False" IsReadOnly="True">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Category" Binding="{Binding Label}" Width="*" />
+                        <DataGridTextColumn Header="Count" Binding="{Binding Count}" Width="*" />
+                    </DataGrid.Columns>
+                </DataGrid>
+            </GroupBox>
+
+            <GroupBox Grid.Column="1" Header="By Priority" Margin="0,0,12,0">
+                <DataGrid ItemsSource="{Binding TasksByPriority}" AutoGenerateColumns="False" IsReadOnly="True">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Priority" Binding="{Binding Label}" Width="*" />
+                        <DataGridTextColumn Header="Count" Binding="{Binding Count}" Width="*" />
+                    </DataGrid.Columns>
+                </DataGrid>
+            </GroupBox>
+
+            <GroupBox Grid.Column="2" Header="Completed Per User">
+                <DataGrid ItemsSource="{Binding CompletedPerUser}" AutoGenerateColumns="False" IsReadOnly="True">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="User" Binding="{Binding UserDisplayName}" Width="2*" />
+                        <DataGridTextColumn Header="Completed" Binding="{Binding CompletedCount}" Width="*" />
+                    </DataGrid.Columns>
+                </DataGrid>
+            </GroupBox>
+        </Grid>
+    </Grid>
+</Window>

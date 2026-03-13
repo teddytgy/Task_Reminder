@@ -1,6 +1,8 @@
 using Task_Reminder.Api.Domain.Entities;
 using Task_Reminder.Api.Infrastructure.Services;
 using Task_Reminder.Shared;
+using TaskStatus = Task_Reminder.Shared.TaskStatus;
+using Xunit;
 
 namespace Task_Reminder.Tests;
 

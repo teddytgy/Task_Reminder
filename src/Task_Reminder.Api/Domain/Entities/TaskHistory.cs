@@ -1,4 +1,5 @@
 using Task_Reminder.Shared;
+using TaskStatus = Task_Reminder.Shared.TaskStatus;
 
 namespace Task_Reminder.Api.Domain.Entities;
 

@@ -1,0 +1,69 @@
+<Window x:Class="Task_Reminder.Wpf.Views.AppointmentBoardWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Appointments"
+        Height="720"
+        Width="1200"
+        WindowStartupLocation="CenterOwner">
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1.7*" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <StackPanel Grid.ColumnSpan="2" Orientation="Horizontal" Margin="0,0,0,12">
+            <ComboBox Width="180" ItemsSource="{Binding Filters}" SelectedItem="{Binding SelectedFilter}" />
+            <Button Width="90" Margin="8,0,0,0" Content="Refresh" Command="{Binding RefreshCommand}" />
+            <Button Width="90" Margin="8,0,0,0" Content="Confirm" Command="{Binding ApplyActionCommand}" CommandParameter="confirm" />
+            <Button Width="110" Margin="8,0,0,0" Content="Voicemail" Command="{Binding ApplyActionCommand}" CommandParameter="voicemail" />
+            <Button Width="100" Margin="8,0,0,0" Content="No Answer" Command="{Binding ApplyActionCommand}" CommandParameter="no-answer" />
+            <Button Width="90" Margin="8,0,0,0" Content="Text Sent" Command="{Binding ApplyActionCommand}" CommandParameter="text-sent" />
+            <Button Width="90" Margin="8,0,0,0" Content="Email Sent" Command="{Binding ApplyActionCommand}" CommandParameter="email-sent" />
+            <Button Width="90" Margin="8,0,0,0" Content="Cancel" Command="{Binding ApplyActionCommand}" CommandParameter="cancel" />
+            <Button Width="100" Margin="8,0,0,0" Content="Reschedule" Command="{Binding ApplyActionCommand}" CommandParameter="reschedule" />
+            <Button Width="90" Margin="8,0,0,0" Content="Check In" Command="{Binding ApplyActionCommand}" CommandParameter="check-in" />
+            <Button Width="90" Margin="8,0,0,0" Content="Complete" Command="{Binding ApplyActionCommand}" CommandParameter="complete" />
+        </StackPanel>
+
+        <DataGrid Grid.Row="1"
+                  ItemsSource="{Binding Appointments}"
+                  SelectedItem="{Binding SelectedAppointment}"
+                  AutoGenerateColumns="False"
+                  IsReadOnly="True">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Patient" Binding="{Binding PatientName}" Width="2*" />
+                <DataGridTextColumn Header="Date" Binding="{Binding AppointmentDateLocal}" Width="*" />
+                <DataGridTextColumn Header="Time" Binding="{Binding AppointmentTimeLocal}" Width="*" />
+                <DataGridTextColumn Header="Type" Binding="{Binding AppointmentType}" Width="*" />
+                <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="*" />
+                <DataGridTextColumn Header="Confirm" Binding="{Binding ConfirmationStatus}" Width="*" />
+                <DataGridTextColumn Header="Insurance" Binding="{Binding InsuranceStatus}" Width="*" />
+                <DataGridTextColumn Header="Balance" Binding="{Binding BalanceStatus}" Width="*" />
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <StackPanel Grid.Row="1" Grid.Column="1" Margin="16,0,0,0">
+            <TextBlock FontSize="22" FontWeight="SemiBold" Text="{Binding SelectedAppointment.PatientName}" />
+            <TextBlock Margin="0,8,0,0" Text="{Binding SelectedAppointment.PatientReference, StringFormat=Patient Ref: {0}}" />
+            <TextBlock Margin="0,8,0,0" Text="{Binding SelectedAppointment.ProviderName, StringFormat=Provider: {0}}" />
+            <TextBlock Margin="0,8,0,0" Text="{Binding SelectedAppointment.LatestContactSummary, StringFormat=Latest Contact: {0}}" />
+            <Button Margin="0,16,0,0" Content="Add Contact Log" Command="{Binding AddContactLogCommand}" />
+            <Button Margin="0,8,0,0" Content="Create Follow-Up Task" Command="{Binding CreateFollowUpTaskCommand}" />
+            <GroupBox Margin="0,16,0,0" Header="Contact Timeline">
+                <DataGrid ItemsSource="{Binding ContactLogs}" AutoGenerateColumns="False" IsReadOnly="True">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="When" Binding="{Binding PerformedAtUtc, Converter={StaticResource UtcToLocalDateTimeConverter}}" Width="*" />
+                        <DataGridTextColumn Header="Type" Binding="{Binding ContactType}" Width="*" />
+                        <DataGridTextColumn Header="Outcome" Binding="{Binding Outcome}" Width="*" />
+                        <DataGridTextColumn Header="Notes" Binding="{Binding Notes}" Width="2*" />
+                    </DataGrid.Columns>
+                </DataGrid>
+            </GroupBox>
+            <TextBlock Margin="0,12,0,0" Foreground="#666" Text="{Binding StatusMessage}" />
+        </StackPanel>
+    </Grid>
+</Window>

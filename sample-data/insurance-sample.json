@@ -1,0 +1,31 @@
+[
+  {
+    "patientName": "Avery Brooks",
+    "patientReference": "PT-6101",
+    "carrierName": "Delta Dental",
+    "planName": "PPO",
+    "memberId": "DD-19022",
+    "groupNumber": "G-300",
+    "appointmentDateLocal": "2026-03-16",
+    "verificationStatus": "Pending",
+    "eligibilityStatus": "Unknown",
+    "verificationMethod": "Imported",
+    "missingInfoNotes": "Need subscriber DOB.",
+    "sourceReference": "CSV-INS-6101"
+  },
+  {
+    "patientName": "Harper James",
+    "patientReference": "PT-6102",
+    "carrierName": "Aetna",
+    "planName": "Dental PPO",
+    "memberId": "AE-55330",
+    "groupNumber": "G-410",
+    "appointmentDateLocal": "2026-03-17",
+    "verificationStatus": "NeedsManualReview",
+    "eligibilityStatus": "OutOfNetwork",
+    "verificationMethod": "Imported",
+    "issueType": "UnsupportedPayer",
+    "notes": "Manager should review plan details.",
+    "sourceReference": "CSV-INS-6102"
+  }
+]

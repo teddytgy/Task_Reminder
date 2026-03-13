@@ -1,0 +1,109 @@
+<Window x:Class="Task_Reminder.Wpf.Views.OperationsBoardsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Front Desk Boards"
+        Height="760"
+        Width="1250"
+        WindowStartupLocation="CenterOwner">
+    <DockPanel Margin="16">
+        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,12">
+            <ComboBox Width="160" ItemsSource="{Binding RangeOptions}" SelectedItem="{Binding SelectedRange}" />
+            <Button Width="90" Margin="8,0,0,0" Content="Refresh" Command="{Binding RefreshCommand}" />
+            <Button Width="100" Margin="8,0,0,0" Content="Export Appts" Click="ExportAppointments_Click" />
+            <Button Width="110" Margin="8,0,0,0" Content="Export Ins." Click="ExportInsurance_Click" />
+            <Button Width="110" Margin="8,0,0,0" Content="Export Bal." Click="ExportBalances_Click" />
+            <Button Width="120" Margin="8,0,0,0" Content="Export Contacts" Click="ExportContacts_Click" />
+            <TextBlock Margin="16,8,0,0" Foreground="#666" Text="{Binding StatusMessage}" />
+        </StackPanel>
+
+        <TabControl>
+            <TabItem Header="Today Board">
+                <Grid Margin="8">
+                    <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+                    <UniformGrid Rows="1" Columns="4" Margin="0,0,0,12">
+                        <Border Margin="0,0,8,0" Padding="12" BorderBrush="#DDD" BorderThickness="1"><StackPanel><TextBlock Text="Confirmation Rate"/><TextBlock FontSize="24" Text="{Binding AppointmentConfirmationRate, StringFormat={}{0:F1}%}"/></StackPanel></Border>
+                        <Border Margin="0,0,8,0" Padding="12" BorderBrush="#DDD" BorderThickness="1"><StackPanel><TextBlock Text="No-Show Rate"/><TextBlock FontSize="24" Text="{Binding NoShowRate, StringFormat={}{0:F1}%}"/></StackPanel></Border>
+                        <Border Margin="0,0,8,0" Padding="12" BorderBrush="#DDD" BorderThickness="1"><StackPanel><TextBlock Text="Cancellation Rate"/><TextBlock FontSize="24" Text="{Binding CancellationRate, StringFormat={}{0:F1}%}"/></StackPanel></Border>
+                        <Border Padding="12" BorderBrush="#DDD" BorderThickness="1"><StackPanel><TextBlock Text="Insurance Completion"/><TextBlock FontSize="24" Text="{Binding InsuranceVerificationCompletionRate, StringFormat={}{0:F1}%}"/></StackPanel></Border>
+                    </UniformGrid>
+                    <DataGrid Grid.Row="1" ItemsSource="{Binding TodayAppointments}" AutoGenerateColumns="False" IsReadOnly="True">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Patient" Binding="{Binding PatientName}" Width="2*" />
+                            <DataGridTextColumn Header="Time" Binding="{Binding AppointmentTimeLocal}" Width="*" />
+                            <DataGridTextColumn Header="Confirm" Binding="{Binding ConfirmationStatus}" Width="*" />
+                            <DataGridTextColumn Header="Insurance" Binding="{Binding InsuranceStatus}" Width="*" />
+                            <DataGridTextColumn Header="Balance" Binding="{Binding BalanceStatus}" Width="*" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Tomorrow Prep">
+                <Grid Margin="8">
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                    <GroupBox Header="Tomorrow's Appointments" Margin="0,0,8,0">
+                        <DataGrid ItemsSource="{Binding TomorrowAppointments}" AutoGenerateColumns="False" IsReadOnly="True">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Patient" Binding="{Binding PatientName}" Width="2*" />
+                                <DataGridTextColumn Header="Time" Binding="{Binding AppointmentTimeLocal}" Width="*" />
+                                <DataGridTextColumn Header="Type" Binding="{Binding AppointmentType}" Width="*" />
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </GroupBox>
+                    <GroupBox Grid.Column="1" Header="Insurance Pending">
+                        <DataGrid ItemsSource="{Binding InsurancePendingItems}" AutoGenerateColumns="False" IsReadOnly="True">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Patient" Binding="{Binding PatientName}" Width="2*" />
+                                <DataGridTextColumn Header="Carrier" Binding="{Binding CarrierName}" Width="*" />
+                                <DataGridTextColumn Header="Status" Binding="{Binding VerificationStatus}" Width="*" />
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </GroupBox>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Collections Board">
+                <DataGrid Margin="8" ItemsSource="{Binding BalanceDueItems}" AutoGenerateColumns="False" IsReadOnly="True">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Patient" Binding="{Binding PatientName}" Width="2*" />
+                        <DataGridTextColumn Header="Amount Due" Binding="{Binding AmountDue}" Width="*" />
+                        <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="*" />
+                        <DataGridTextColumn Header="Follow Up" Binding="{Binding FollowUpDateLocal}" Width="*" />
+                    </DataGrid.Columns>
+                </DataGrid>
+            </TabItem>
+            <TabItem Header="Recall / Follow-Up">
+                <DataGrid Margin="8" ItemsSource="{Binding RecallCandidates}" AutoGenerateColumns="False" IsReadOnly="True">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Patient" Binding="{Binding PatientName}" Width="2*" />
+                        <DataGridTextColumn Header="Date" Binding="{Binding AppointmentDateLocal}" Width="*" />
+                        <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="*" />
+                        <DataGridTextColumn Header="Latest Contact" Binding="{Binding LatestContactSummary}" Width="2*" />
+                    </DataGrid.Columns>
+                </DataGrid>
+            </TabItem>
+            <TabItem Header="Manager Queue">
+                <Grid Margin="8">
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                    <GroupBox Header="Escalations" Margin="0,0,8,0">
+                        <DataGrid ItemsSource="{Binding ManagerEscalations}" AutoGenerateColumns="False" IsReadOnly="True">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Title" Binding="{Binding Title}" Width="2*" />
+                                <DataGridTextColumn Header="Priority" Binding="{Binding Priority}" Width="*" />
+                                <DataGridTextColumn Header="Assigned" Binding="{Binding AssignedUserDisplayName}" Width="*" />
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </GroupBox>
+                    <GroupBox Grid.Column="1" Header="Workload by User">
+                        <DataGrid ItemsSource="{Binding Workloads}" AutoGenerateColumns="False" IsReadOnly="True">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="User" Binding="{Binding UserDisplayName}" Width="2*" />
+                                <DataGridTextColumn Header="Open" Binding="{Binding OpenItems}" Width="*" />
+                                <DataGridTextColumn Header="Overdue" Binding="{Binding OverdueItems}" Width="*" />
+                                <DataGridTextColumn Header="Done Today" Binding="{Binding CompletedToday}" Width="*" />
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </GroupBox>
+                </Grid>
+            </TabItem>
+        </TabControl>
+    </DockPanel>
+</Window>

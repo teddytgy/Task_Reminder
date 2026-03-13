@@ -1,0 +1,34 @@
+<Window x:Class="Task_Reminder.Wpf.Views.OfficeSettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Office Settings"
+        Height="520"
+        Width="540"
+        WindowStartupLocation="CenterOwner">
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <Grid Margin="16">
+            <Grid.ColumnDefinitions><ColumnDefinition Width="190"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <TextBlock Text="Office Name" VerticalAlignment="Center"/><TextBox Grid.Column="1" Margin="8,0,0,12" Text="{Binding OfficeName}"/>
+            <TextBlock Grid.Row="1" Text="Business Hours" VerticalAlignment="Center"/><TextBox Grid.Row="1" Grid.Column="1" Margin="8,0,0,12" Text="{Binding BusinessHoursSummary}"/>
+            <TextBlock Grid.Row="2" Text="Confirmation Lead Hours"/><TextBox Grid.Row="2" Grid.Column="1" Margin="8,0,0,12" Text="{Binding ConfirmationLeadHours}"/>
+            <TextBlock Grid.Row="3" Text="Insurance Lead Days"/><TextBox Grid.Row="3" Grid.Column="1" Margin="8,0,0,12" Text="{Binding InsuranceVerificationLeadDays}"/>
+            <TextBlock Grid.Row="4" Text="Overdue Escalation Min"/><TextBox Grid.Row="4" Grid.Column="1" Margin="8,0,0,12" Text="{Binding OverdueEscalationMinutes}"/>
+            <TextBlock Grid.Row="5" Text="No-Show Delay Hours"/><TextBox Grid.Row="5" Grid.Column="1" Margin="8,0,0,12" Text="{Binding NoShowFollowUpDelayHours}"/>
+            <TextBlock Grid.Row="6" Text="Default Reminder Min"/><TextBox Grid.Row="6" Grid.Column="1" Margin="8,0,0,12" Text="{Binding DefaultReminderIntervalMinutes}"/>
+            <TextBlock Grid.Row="7" Text="Time Zone"/><TextBox Grid.Row="7" Grid.Column="1" Margin="8,0,0,12" Text="{Binding TimeZoneId}"/>
+            <CheckBox Grid.Row="8" Grid.ColumnSpan="2" Margin="0,4,0,8" Content="Enable Today Board" IsChecked="{Binding EnableTodayBoard}"/>
+            <CheckBox Grid.Row="9" Grid.ColumnSpan="2" Margin="0,4,0,8" Content="Enable Tomorrow Prep Board" IsChecked="{Binding EnableTomorrowPrepBoard}"/>
+            <CheckBox Grid.Row="10" Grid.ColumnSpan="2" Margin="0,4,0,8" Content="Enable Collections Board" IsChecked="{Binding EnableCollectionsBoard}"/>
+            <CheckBox Grid.Row="11" Grid.ColumnSpan="2" Margin="0,4,0,8" Content="Enable Recall Board" IsChecked="{Binding EnableRecallBoard}"/>
+            <CheckBox Grid.Row="12" Grid.ColumnSpan="2" Margin="0,4,0,8" Content="Enable Manager Queue" IsChecked="{Binding EnableManagerQueue}"/>
+            <StackPanel Grid.Row="13" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Right">
+                <TextBlock Margin="0,8,12,0" Foreground="#666" Text="{Binding StatusMessage}" />
+                <Button Width="90" Margin="0,8,8,0" Content="Cancel" Click="Cancel_Click"/>
+                <Button Width="90" Margin="0,8,0,0" Content="Save" Command="{Binding SaveCommand}" CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}"/>
+            </StackPanel>
+        </Grid>
+    </ScrollViewer>
+</Window>

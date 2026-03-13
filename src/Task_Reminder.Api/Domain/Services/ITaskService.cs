@@ -12,6 +12,7 @@ public interface ITaskService
     Task<TaskItemDto?> SnoozeAsync(Guid taskId, SnoozeTaskRequest request, CancellationToken cancellationToken);
     Task<TaskItemDto?> CompleteAsync(Guid taskId, CompleteTaskRequest request, CancellationToken cancellationToken);
     Task<TaskItemDto?> CancelAsync(Guid taskId, CancelTaskRequest request, CancellationToken cancellationToken);
+    Task<TaskHistoryDto?> AddCommentAsync(Guid taskId, AddTaskCommentRequest request, CancellationToken cancellationToken);
     Task<IReadOnlyList<TaskHistoryDto>> GetHistoryAsync(Guid taskId, CancellationToken cancellationToken);
     Task<int> MarkOverdueTasksAsync(CancellationToken cancellationToken);
 }

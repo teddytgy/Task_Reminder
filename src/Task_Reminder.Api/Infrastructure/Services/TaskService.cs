@@ -3,13 +3,16 @@ using Task_Reminder.Api.Data;
 using Task_Reminder.Api.Domain.Entities;
 using Task_Reminder.Api.Domain.Services;
 using Task_Reminder.Shared;
+using TaskStatus = Task_Reminder.Shared.TaskStatus;
 
 namespace Task_Reminder.Api.Infrastructure.Services;
 
 public sealed class TaskService(
     TaskReminderDbContext dbContext,
     IUserService userService,
-    TaskBroadcastService broadcastService) : ITaskService
+    TaskBroadcastService broadcastService,
+    IAuditService auditService,
+    ILogger<TaskService> logger) : ITaskService
 {
     public async Task<TaskItemDto> CreateAsync(CreateTaskRequest request, CancellationToken cancellationToken)
     {
@@ -39,12 +42,19 @@ public sealed class TaskService(
             UpdatedAtUtc = now,
             PatientReference = request.PatientReference?.Trim(),
             Notes = request.Notes?.Trim(),
-            ReminderRepeatMinutes = Math.Clamp(request.ReminderRepeatMinutes ?? 30, 5, 1440)
+            ReminderRepeatMinutes = Math.Clamp(request.ReminderRepeatMinutes ?? 30, 5, 1440),
+            EscalateAfterMinutes = request.EscalateAfterMinutes,
+            EscalateToUserId = request.EscalateToUserId,
+            AppointmentWorkItemId = request.AppointmentWorkItemId,
+            InsuranceWorkItemId = request.InsuranceWorkItemId,
+            BalanceFollowUpWorkItemId = request.BalanceFollowUpWorkItemId
         };
 
         dbContext.Tasks.Add(task);
         dbContext.TaskHistory.Add(CreateHistory(task.Id, "Created", null, task.Status, task.CreatedByUserId, $"Task created: {task.Title}", now));
         await dbContext.SaveChangesAsync(cancellationToken);
+        await auditService.WriteAsync("Task", task.Id, "Created", $"Created task {task.Title}.", task.Description, task.CreatedByUserId, cancellationToken);
+        logger.LogInformation("Created task {TaskId} with status {TaskStatus} and assignee {AssignedUserId}.", task.Id, task.Status, task.AssignedUserId);
 
         var dto = await GetRequiredDtoAsync(task.Id, cancellationToken);
         await broadcastService.BroadcastTaskChangedAsync("created", dto, cancellationToken);
@@ -130,6 +140,7 @@ public sealed class TaskService(
         var task = await dbContext.Tasks.FirstOrDefaultAsync(x => x.Id == taskId, cancellationToken);
         if (task is null)
         {
+            logger.LogWarning("Assign requested for missing task {TaskId}.", taskId);
             return null;
         }
 
@@ -145,6 +156,8 @@ public sealed class TaskService(
 
         dbContext.TaskHistory.Add(CreateHistory(task.Id, "Assigned", oldStatus, task.Status, request.PerformedByUserId, $"Assigned to user {request.AssignedUserId}.", task.UpdatedAtUtc));
         await dbContext.SaveChangesAsync(cancellationToken);
+        await auditService.WriteAsync("Task", task.Id, "Assigned", $"Assigned task {task.Title}.", $"Assigned to user {request.AssignedUserId}.", request.PerformedByUserId, cancellationToken);
+        logger.LogInformation("Assigned task {TaskId} to user {AssignedUserId}.", task.Id, request.AssignedUserId);
 
         var dto = await GetRequiredDtoAsync(task.Id, cancellationToken);
         await broadcastService.BroadcastTaskChangedAsync("assigned", dto, cancellationToken);
@@ -156,6 +169,7 @@ public sealed class TaskService(
         var task = await dbContext.Tasks.FirstOrDefaultAsync(x => x.Id == taskId, cancellationToken);
         if (task is null)
         {
+            logger.LogWarning("Claim requested for missing task {TaskId}.", taskId);
             return null;
         }
 
@@ -177,6 +191,8 @@ public sealed class TaskService(
 
         dbContext.TaskHistory.Add(CreateHistory(task.Id, "Claimed", oldStatus, task.Status, request.UserId, $"Claimed by user {request.UserId}.", task.UpdatedAtUtc));
         await dbContext.SaveChangesAsync(cancellationToken);
+        await auditService.WriteAsync("Task", task.Id, "Claimed", $"Claimed task {task.Title}.", $"Claimed by user {request.UserId}.", request.UserId, cancellationToken);
+        logger.LogInformation("Claimed task {TaskId} by user {UserId}.", task.Id, request.UserId);
 
         var dto = await GetRequiredDtoAsync(task.Id, cancellationToken);
         await broadcastService.BroadcastTaskChangedAsync("claimed", dto, cancellationToken);
@@ -193,6 +209,7 @@ public sealed class TaskService(
         var task = await dbContext.Tasks.FirstOrDefaultAsync(x => x.Id == taskId, cancellationToken);
         if (task is null)
         {
+            logger.LogWarning("Snooze requested for missing task {TaskId}.", taskId);
             return null;
         }
 
@@ -203,6 +220,8 @@ public sealed class TaskService(
 
         dbContext.TaskHistory.Add(CreateHistory(task.Id, "Snoozed", oldStatus, task.Status, request.UserId, $"Snoozed until {request.SnoozeUntilUtc:O}.", task.UpdatedAtUtc));
         await dbContext.SaveChangesAsync(cancellationToken);
+        await auditService.WriteAsync("Task", task.Id, "Snoozed", $"Snoozed task {task.Title}.", $"Snoozed until {request.SnoozeUntilUtc:O}.", request.UserId, cancellationToken);
+        logger.LogInformation("Snoozed task {TaskId} until {SnoozeUntilUtc}.", task.Id, request.SnoozeUntilUtc);
 
         var dto = await GetRequiredDtoAsync(task.Id, cancellationToken);
         await broadcastService.BroadcastTaskChangedAsync("snoozed", dto, cancellationToken);
@@ -214,6 +233,7 @@ public sealed class TaskService(
         var task = await dbContext.Tasks.FirstOrDefaultAsync(x => x.Id == taskId, cancellationToken);
         if (task is null)
         {
+            logger.LogWarning("Complete requested for missing task {TaskId}.", taskId);
             return null;
         }
 
@@ -226,6 +246,8 @@ public sealed class TaskService(
 
         dbContext.TaskHistory.Add(CreateHistory(task.Id, "Completed", oldStatus, task.Status, request.UserId, "Task completed.", task.UpdatedAtUtc));
         await dbContext.SaveChangesAsync(cancellationToken);
+        await auditService.WriteAsync("Task", task.Id, "Completed", $"Completed task {task.Title}.", "Task completed.", request.UserId, cancellationToken);
+        logger.LogInformation("Completed task {TaskId} by user {UserId}.", task.Id, request.UserId);
 
         var dto = await GetRequiredDtoAsync(task.Id, cancellationToken);
         await broadcastService.BroadcastTaskChangedAsync("completed", dto, cancellationToken);
@@ -237,6 +259,7 @@ public sealed class TaskService(
         var task = await dbContext.Tasks.FirstOrDefaultAsync(x => x.Id == taskId, cancellationToken);
         if (task is null)
         {
+            logger.LogWarning("Cancel requested for missing task {TaskId}.", taskId);
             return null;
         }
 
@@ -246,10 +269,54 @@ public sealed class TaskService(
 
         dbContext.TaskHistory.Add(CreateHistory(task.Id, "Cancelled", oldStatus, task.Status, request.UserId, request.Reason ?? "Task cancelled.", task.UpdatedAtUtc));
         await dbContext.SaveChangesAsync(cancellationToken);
+        await auditService.WriteAsync("Task", task.Id, "Cancelled", $"Cancelled task {task.Title}.", request.Reason ?? "Task cancelled.", request.UserId, cancellationToken);
+        logger.LogInformation("Cancelled task {TaskId} by user {UserId}.", task.Id, request.UserId);
 
         var dto = await GetRequiredDtoAsync(task.Id, cancellationToken);
         await broadcastService.BroadcastTaskChangedAsync("cancelled", dto, cancellationToken);
         return dto;
+    }
+
+    public async Task<TaskHistoryDto?> AddCommentAsync(Guid taskId, AddTaskCommentRequest request, CancellationToken cancellationToken)
+    {
+        var task = await dbContext.Tasks.FirstOrDefaultAsync(x => x.Id == taskId, cancellationToken);
+        if (task is null)
+        {
+            logger.LogWarning("Comment requested for missing task {TaskId}.", taskId);
+            return null;
+        }
+
+        var historyEntry = new TaskHistory
+        {
+            Id = Guid.NewGuid(),
+            TaskItemId = taskId,
+            ActionType = "Comment",
+            OldStatus = null,
+            NewStatus = null,
+            PerformedByUserId = request.UserId,
+            PerformedAtUtc = DateTime.UtcNow,
+            Details = request.Comment.Trim()
+        };
+
+        dbContext.TaskHistory.Add(historyEntry);
+        task.UpdatedAtUtc = historyEntry.PerformedAtUtc;
+        await dbContext.SaveChangesAsync(cancellationToken);
+        await auditService.WriteAsync("Task", taskId, "Commented", $"Added comment to task {task.Title}.", request.Comment.Trim(), request.UserId, cancellationToken);
+        logger.LogInformation("Added comment to task {TaskId} by user {UserId}.", taskId, request.UserId);
+
+        var performedBy = await dbContext.Users.AsNoTracking().FirstOrDefaultAsync(x => x.Id == request.UserId, cancellationToken);
+        return new TaskHistoryDto
+        {
+            Id = historyEntry.Id,
+            TaskItemId = historyEntry.TaskItemId,
+            ActionType = historyEntry.ActionType,
+            OldStatus = historyEntry.OldStatus,
+            NewStatus = historyEntry.NewStatus,
+            PerformedByUserId = historyEntry.PerformedByUserId,
+            PerformedByDisplayName = performedBy?.DisplayName,
+            PerformedAtUtc = historyEntry.PerformedAtUtc,
+            Details = historyEntry.Details
+        };
     }
 
     public async Task<IReadOnlyList<TaskHistoryDto>> GetHistoryAsync(Guid taskId, CancellationToken cancellationToken)
@@ -301,6 +368,11 @@ public sealed class TaskService(
         }
 
         await dbContext.SaveChangesAsync(cancellationToken);
+        foreach (var task in tasks)
+        {
+            await auditService.WriteAsync("Task", task.Id, "MarkedOverdue", $"Marked task {task.Title} overdue.", "Task automatically marked overdue.", null, cancellationToken);
+        }
+        logger.LogInformation("Marked {TaskCount} tasks as overdue.", tasks.Count);
 
         foreach (var task in tasks)
         {
@@ -308,7 +380,41 @@ public sealed class TaskService(
             await broadcastService.BroadcastTaskChangedAsync("overdue", dto, cancellationToken);
         }
 
-        return tasks.Count;
+        var escalationCandidates = await dbContext.Tasks
+            .Where(x =>
+                x.DueAtUtc.HasValue &&
+                x.Status == TaskStatus.Overdue &&
+                x.EscalateToUserId.HasValue)
+            .ToListAsync(cancellationToken);
+
+        var escalatedTasks = escalationCandidates
+            .Where(x => Task_Reminder.Shared.EscalationRules.ShouldEscalate(x.DueAtUtc!.Value, x.EscalateAfterMinutes, now, x.EscalatedAtUtc))
+            .ToList();
+
+        foreach (var task in escalatedTasks)
+        {
+            task.EscalatedAtUtc = now;
+            task.UpdatedAtUtc = now;
+            dbContext.TaskHistory.Add(CreateHistory(task.Id, "Escalated", task.Status, task.Status, task.EscalateToUserId, $"Task escalated to user {task.EscalateToUserId}.", now));
+        }
+
+        if (escalatedTasks.Count > 0)
+        {
+            await dbContext.SaveChangesAsync(cancellationToken);
+            foreach (var task in escalatedTasks)
+            {
+                await auditService.WriteAsync("Task", task.Id, "Escalated", $"Escalated task {task.Title}.", $"Task escalated to user {task.EscalateToUserId}.", task.EscalateToUserId, cancellationToken);
+            }
+            logger.LogInformation("Escalated {TaskCount} overdue tasks.", escalatedTasks.Count);
+
+            foreach (var task in escalatedTasks)
+            {
+                var dto = await GetRequiredDtoAsync(task.Id, cancellationToken);
+                await broadcastService.BroadcastTaskChangedAsync("escalated", dto, cancellationToken);
+            }
+        }
+
+        return tasks.Count + escalatedTasks.Count;
     }
 
     private async Task<TaskItemDto> GetRequiredDtoAsync(Guid taskId, CancellationToken cancellationToken)
@@ -374,6 +480,14 @@ public sealed class TaskService(
             PatientReference = task.PatientReference,
             Notes = task.Notes,
             ReminderRepeatMinutes = task.ReminderRepeatMinutes,
+            EscalateAfterMinutes = task.EscalateAfterMinutes,
+            EscalateToUserId = task.EscalateToUserId,
+            EscalatedAtUtc = task.EscalatedAtUtc,
+            GeneratedFromRecurringTaskDefinitionId = task.GeneratedFromRecurringTaskDefinitionId,
+            GeneratedForDateLocal = task.GeneratedForDateLocal,
+            AppointmentWorkItemId = task.AppointmentWorkItemId,
+            InsuranceWorkItemId = task.InsuranceWorkItemId,
+            BalanceFollowUpWorkItemId = task.BalanceFollowUpWorkItemId,
             IsOverdue = isOverdue,
             IsDueNow = isDueNow
         };

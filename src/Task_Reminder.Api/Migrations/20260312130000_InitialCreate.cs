@@ -1,10 +1,14 @@
 using System;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Task_Reminder.Api.Data;
 
 #nullable disable
 
 namespace Task_Reminder.Api.Migrations;
 
+[DbContext(typeof(TaskReminderDbContext))]
+[Migration("20260312130000_InitialCreate")]
 public partial class InitialCreate : Migration
 {
     protected override void Up(MigrationBuilder migrationBuilder)
